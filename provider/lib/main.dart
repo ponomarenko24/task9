@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'tasks_model.dart';
+import 'tasks_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,15 +12,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: const MainApp());
+    return ChangeNotifierProvider(
+      create: (BuildContext context) => TasksProvider(),
+      child: MaterialApp(home: const MainApp()),
+    );
   }
-}
-
-class Task {
-  String describe;
-  bool isChecked;
-
-  Task(this.describe, {this.isChecked = false});
 }
 
 class MainApp extends StatefulWidget {
@@ -28,12 +27,11 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  final List<Task> _tasks = [Task("task1"), Task("task2", isChecked: true)];
-
   final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final List<Task> _tasks = context.read<TasksProvider>().tasks;
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -68,7 +66,7 @@ class _MainAppState extends State<MainApp> {
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
         setState(() {
-          _tasks.remove(task);
+          context.read<TasksProvider>().removeTask(task);
         });
       },
       background: Container(
@@ -125,7 +123,7 @@ class _MainAppState extends State<MainApp> {
   void _addTask() {
     final text = _controller.text.trim();
     setState(() {
-      _tasks.insert(0, Task(text));
+      context.read<TasksProvider>().addTask(Task(text));
     });
   }
 
