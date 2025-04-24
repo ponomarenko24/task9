@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (BuildContext context) => TasksProvider(),
-      child: MaterialApp(home: const MainApp()),
+      child: const MaterialApp(home: MainApp()),
     );
   }
 }
@@ -30,20 +30,26 @@ class _MainAppState extends State<MainApp> {
   final TextEditingController _controller = TextEditingController();
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final List<Task> _tasks = context.watch<TasksProvider>().tasks;
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.grey[300],
-          title: Text("TODO List Provider"),
+          title: const Text("TODO List Provider"),
         ),
         body: ReorderableListView.builder(
           itemCount: _tasks.length,
           onReorder: (oldIndex, newIndex) {
-              if (newIndex > oldIndex) newIndex--;
-              final task = _tasks.removeAt(oldIndex);
-              _tasks.insert(newIndex, task);
+            if (newIndex > oldIndex) newIndex--;
+            final task = _tasks.removeAt(oldIndex);
+            _tasks.insert(newIndex, task);
           },
           itemBuilder: (BuildContext context, int index) {
             final task = _tasks[index];
@@ -52,7 +58,7 @@ class _MainAppState extends State<MainApp> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => dialogWindow(context),
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
         ),
       ),
     );
@@ -63,7 +69,7 @@ class _MainAppState extends State<MainApp> {
       key: ValueKey(task.describe),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
-          context.read<TasksProvider>().removeTask(task);
+        context.read<TasksProvider>().removeTask(task);
       },
       background: Container(
         color: Colors.red,
@@ -75,7 +81,7 @@ class _MainAppState extends State<MainApp> {
     );
   }
 
-  Widget taskContainer(task) {
+  Widget taskContainer(Task task) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -106,7 +112,7 @@ class _MainAppState extends State<MainApp> {
           Checkbox(
             value: task.isChecked,
             onChanged: (_) {
-                context.read<TasksProvider>().toggleTask(task);
+              context.read<TasksProvider>().toggleTask(task);
             },
           ),
         ],
@@ -116,13 +122,7 @@ class _MainAppState extends State<MainApp> {
 
   void _addTask() {
     final text = _controller.text.trim();
-      context.read<TasksProvider>().addTask(Task(text));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    context.read<TasksProvider>().addTask(Task(text));
   }
 
   Future<String?> dialogWindow(BuildContext context) {
@@ -139,19 +139,21 @@ class _MainAppState extends State<MainApp> {
                   const SizedBox(height: 30),
                   TextField(
                     controller: _controller,
-                    decoration: InputDecoration(labelText: "Enter task here"),
+                    decoration: const InputDecoration(
+                      labelText: "Enter task here",
+                    ),
                   ),
                   const SizedBox(height: 30),
                   Row(
                     children: [
-                      Spacer(),
+                      const Spacer(),
                       TextButton(
                         onPressed: () {
                           Navigator.pop(context);
                         },
                         child: const Text('Close'),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
@@ -160,7 +162,7 @@ class _MainAppState extends State<MainApp> {
                         },
                         child: const Text('Add'),
                       ),
-                      Spacer(),
+                      const Spacer(),
                     ],
                   ),
                 ],

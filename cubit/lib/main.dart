@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => TasksCubit(),
-      child: MaterialApp(home: const MainApp()),
+      child: const MaterialApp(home: MainApp()),
     );
   }
 }
@@ -30,13 +30,18 @@ class _MainAppState extends State<MainApp> {
   final TextEditingController _controller = TextEditingController();
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // final List<Task> _tasks = context.read<TasksCubit>().state;
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.grey[300],
-          title: Text("TODO List Cubit"),
+          title: const Text("TODO List Cubit"),
         ),
         body: BlocBuilder<TasksCubit, List<Task>>(
           builder:(context, tasks) {
@@ -58,13 +63,13 @@ class _MainAppState extends State<MainApp> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => dialogWindow(context),
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
         ),
       ),
     );
   }
 
-  Widget dismissSwipe(task) {
+  Widget dismissSwipe(Task task) {
     return Dismissible(
       key: ValueKey(task.describe),
       direction: DismissDirection.endToStart,
@@ -125,12 +130,6 @@ class _MainAppState extends State<MainApp> {
     context.read<TasksCubit>().addTask(Task(text));
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   Future<String?> dialogWindow(BuildContext context) {
     return showDialog<String>(
       context: context,
@@ -145,19 +144,19 @@ class _MainAppState extends State<MainApp> {
                   const SizedBox(height: 30),
                   TextField(
                     controller: _controller,
-                    decoration: InputDecoration(labelText: "Enter task here"),
+                    decoration: const InputDecoration(labelText: "Enter task here"),
                   ),
                   const SizedBox(height: 30),
                   Row(
                     children: [
-                      Spacer(),
+                      const Spacer(),
                       TextButton(
                         onPressed: () {
                           Navigator.pop(context);
                         },
                         child: const Text('Close'),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
@@ -166,7 +165,7 @@ class _MainAppState extends State<MainApp> {
                         },
                         child: const Text('Add'),
                       ),
-                      Spacer(),
+                      const Spacer(),
                     ],
                   ),
                 ],
