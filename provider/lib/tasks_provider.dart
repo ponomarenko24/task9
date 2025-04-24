@@ -6,8 +6,6 @@ class TasksProvider extends ChangeNotifier {
 
   List<Task> get tasks => _tasks;
 
-  // TasksProvider(this._tasks);
-
   void addTask(Task task) {
     _tasks.insert(0, task);
     notifyListeners();
@@ -15,6 +13,14 @@ class TasksProvider extends ChangeNotifier {
 
   void removeTask(Task task) {
     _tasks.remove(task);
+    notifyListeners();
+  }
+
+  void toggleTask(Task task) {
+    final index = _tasks.indexOf(task);
+    if (index != -1) {
+      _tasks[index] = task.copyWith(isChecked: !task.isChecked);
+    }
     notifyListeners();
   }
 }

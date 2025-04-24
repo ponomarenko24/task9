@@ -31,21 +31,19 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Task> _tasks = context.read<TasksProvider>().tasks;
+    final List<Task> _tasks = context.watch<TasksProvider>().tasks;
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.grey[300],
-          title: Text("TODO List"),
+          title: Text("TODO List Provider"),
         ),
         body: ReorderableListView.builder(
           itemCount: _tasks.length,
           onReorder: (oldIndex, newIndex) {
-            setState(() {
               if (newIndex > oldIndex) newIndex--;
               final task = _tasks.removeAt(oldIndex);
               _tasks.insert(newIndex, task);
-            });
           },
           itemBuilder: (BuildContext context, int index) {
             final task = _tasks[index];
@@ -65,9 +63,7 @@ class _MainAppState extends State<MainApp> {
       key: ValueKey(task.describe),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
-        setState(() {
           context.read<TasksProvider>().removeTask(task);
-        });
       },
       background: Container(
         color: Colors.red,
@@ -110,9 +106,7 @@ class _MainAppState extends State<MainApp> {
           Checkbox(
             value: task.isChecked,
             onChanged: (_) {
-              setState(() {
-                task.isChecked = task.isChecked == true ? false : true;
-              });
+                context.read<TasksProvider>().toggleTask(task);
             },
           ),
         ],
@@ -122,9 +116,7 @@ class _MainAppState extends State<MainApp> {
 
   void _addTask() {
     final text = _controller.text.trim();
-    setState(() {
       context.read<TasksProvider>().addTask(Task(text));
-    });
   }
 
   @override

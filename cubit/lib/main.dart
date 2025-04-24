@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:task_8/tasks_cubit.dart';
 import 'tasks_model.dart';
-import 'tasks_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,8 +12,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (BuildContext context) => TasksProvider(),
+    return BlocProvider(
+      create: (BuildContext context) => TasksCubit(),
       child: MaterialApp(home: const MainApp()),
     );
   }
@@ -31,26 +31,30 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Task> _tasks = context.read<TasksProvider>().tasks;
+    // final List<Task> _tasks = context.read<TasksCubit>().state;
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.grey[300],
-          title: Text("TODO List"),
+          title: Text("TODO List Cubit"),
         ),
-        body: ReorderableListView.builder(
-          itemCount: _tasks.length,
-          onReorder: (oldIndex, newIndex) {
-            setState(() {
-              if (newIndex > oldIndex) newIndex--;
-              final task = _tasks.removeAt(oldIndex);
-              _tasks.insert(newIndex, task);
-            });
-          },
-          itemBuilder: (BuildContext context, int index) {
-            final task = _tasks[index];
-            return dismissSwipe(task);
-          },
+        body: BlocBuilder<TasksCubit, List<Task>>(
+          builder:(context, tasks) {
+          return ReorderableListView.builder(
+            itemCount: tasks.length,
+            onReorder: (oldIndex, newIndex) {
+          
+                if (newIndex > oldIndex) newIndex--;
+                final task = tasks.removeAt(oldIndex);
+                tasks.insert(newIndex, task);
+          
+            },
+            itemBuilder: (BuildContext context, int index) {
+              final task = tasks[index];
+              return dismissSwipe(task);
+            },
+          );
+  }
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => dialogWindow(context),
@@ -65,9 +69,7 @@ class _MainAppState extends State<MainApp> {
       key: ValueKey(task.describe),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
-        setState(() {
-          context.read<TasksProvider>().removeTask(task);
-        });
+        context.read<TasksCubit>().removeTask(task);
       },
       background: Container(
         color: Colors.red,
@@ -110,9 +112,7 @@ class _MainAppState extends State<MainApp> {
           Checkbox(
             value: task.isChecked,
             onChanged: (_) {
-              setState(() {
-                task.isChecked = task.isChecked == true ? false : true;
-              });
+                context.read<TasksCubit>().toggleTask(task);
             },
           ),
         ],
@@ -122,9 +122,7 @@ class _MainAppState extends State<MainApp> {
 
   void _addTask() {
     final text = _controller.text.trim();
-    setState(() {
-      context.read<TasksProvider>().addTask(Task(text));
-    });
+    context.read<TasksCubit>().addTask(Task(text));
   }
 
   @override
